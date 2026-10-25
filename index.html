@@ -1,0 +1,832 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif}img{max-width:100%}</style>
+</head>
+<body>
+<title>HOENN Révisions</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=DM+Sans:wght@500;700&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<style>
+/* Layout : écrans centrés comme WB49 (accueil → nombre de questions → quiz → score) */
+:root {
+  --bg: #ffffff;
+  --fg: #2a2140;
+  --muted: #7a6f8c;
+  --tile: #ffffff;
+  --edge: #f6dce7;
+  --accent: #ff8fb8;   /* rose */
+  --accent2: #8cc8ff;  /* bleu clair */
+  --on-accent: #ffffff;
+  --ok: #1f9d55;
+  --err: #e0364f;
+  --font-display: "Outfit", "Segoe UI", system-ui, sans-serif;
+  --font-body: "DM Sans", system-ui, sans-serif;
+  --font-jp: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #000000; --fg: #ffffff; --muted: #b8a9b0;
+    --tile: #111111; --edge: #2c2226; --accent: #ff5fa2; --accent2: #ff9a3c;
+    --on-accent: #000000; --ok: #4ade80; --err: #ff5470; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #000000; --fg: #ffffff; --muted: #b8a9b0;
+  --tile: #111111; --edge: #2c2226; --accent: #ff5fa2; --accent2: #ff9a3c;
+  --on-accent: #000000; --ok: #4ade80; --err: #ff5470; color-scheme: dark;
+}
+:root[data-theme="light"] { color-scheme: light; }
+
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); }
+
+.deco { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+.deco ellipse { fill: none; stroke-width: 1.4; vector-effect: non-scaling-stroke; opacity: .6; }
+.deco g:nth-child(odd) ellipse { stroke: var(--accent); }
+.deco g:nth-child(even) ellipse { stroke: var(--accent2); }
+.deco g { transform-box: fill-box; transform-origin: center; animation: drift 18s ease-in-out infinite alternate; }
+.deco g:nth-child(2) { animation-name: drift2; animation-duration: 22s; animation-delay: -6s; }
+.deco g:nth-child(3) { animation-name: drift3; animation-duration: 16s; animation-delay: -10s; }
+.deco g:nth-child(4) { animation-name: drift2; animation-duration: 20s; animation-delay: -3s; animation-direction: alternate-reverse; }
+
+.bar, .home { position: fixed; z-index: 5; top: calc(14px + env(safe-area-inset-top, 0px)); }
+.bar { right: calc(14px + env(safe-area-inset-right, 0px)); }
+.home { left: calc(14px + env(safe-area-inset-left, 0px)); }
+.pill {
+  font: inherit; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; gap: 8px;
+  background: var(--tile); color: var(--fg);
+  border: 2px solid var(--edge); border-radius: 999px; padding: 8px 14px;
+}
+.pill .sw { width: 18px; height: 18px; border-radius: 50%; background: linear-gradient(90deg, var(--accent) 50%, var(--accent2) 50%); }
+
+.stage {
+  position: relative; z-index: 1;
+  min-height: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: clamp(24px, 5vw, 36px);
+  padding-block: 80px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  box-sizing: border-box; text-align: center;
+}
+.stage:not([hidden]) { animation: appear .4s ease-out both; }
+#v-lobby { animation: none; }
+.head { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+h1 {
+  margin: 0; font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(4rem, 20vw, 10rem); line-height: 1; letter-spacing: .03em;
+  animation: fondu 1.6s ease-out both;
+}
+.a { color: var(--accent); }
+.b { color: var(--accent2); }
+.kana {
+  font-family: var(--font-jp); font-weight: 700; color: var(--muted);
+  font-size: clamp(1.2rem, 5vw, 1.8rem); letter-spacing: .4em; padding-left: .4em;
+  animation: fondu 1.6s ease-out .4s both;
+}
+h2 { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: clamp(2rem, 8vw, 3rem); line-height: 1.1; text-wrap: balance; }
+
+.tiles { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; width: 100%; max-width: 860px; }
+.tile {
+  font: inherit; color: var(--fg); cursor: pointer;
+  background: var(--tile); border-radius: 28px;
+  width: min(250px, 100%); padding: 28px 24px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  border: 2px solid var(--edge);
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--accent) 20%, transparent);
+  transition: transform .2s, box-shadow .2s, border-color .2s;
+}
+#v-lobby .tile { animation: monte .8s ease-out 1.2s both; }
+#v-lobby .tile:nth-child(2) { animation-delay: 1.3s; }
+#v-lobby .tile:nth-child(3) { animation-delay: 1.4s; }
+.tile:hover { transform: translateY(-3px); border-color: var(--accent); }
+.tile .jp { font-family: var(--font-jp); font-weight: 700; font-size: 2.8rem; line-height: 1.1; color: var(--accent); }
+.tile:nth-child(even) .jp { color: var(--accent2); }
+.tile .name { font-family: var(--font-display); font-weight: 600; font-size: 1.5rem; }
+
+.choices { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.choice {
+  font: inherit; cursor: pointer; width: 96px; height: 96px; border-radius: 24px;
+  background: var(--tile); color: var(--fg); border: 2px solid var(--edge);
+  font-family: var(--font-display); font-size: 2.4rem; font-weight: 700;
+  transition: border-color .15s, transform .15s;
+}
+.choice:hover { border-color: var(--accent); transform: translateY(-2px); }
+
+.btn {
+  font: inherit; font-weight: 700; cursor: pointer; border: 0; border-radius: 999px;
+  padding: 12px 24px; background: var(--accent); color: var(--on-accent);
+}
+.btn.ghost { background: transparent; color: var(--fg); border: 2px solid var(--edge); }
+.row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.btn:active, .choice:active, .tile:active, .pill:active { transform: scale(.96); }
+
+.progress { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.progress i { width: 28px; height: 6px; border-radius: 3px; background: var(--edge); }
+.progress i.done { background: var(--accent); }
+.progress i.now { background: var(--accent2); }
+
+/* les 3 cases kana */
+.cards { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+.card {
+  width: clamp(92px, 26vw, 150px); box-sizing: border-box;
+  display: flex; flex-direction: column; gap: 12px; align-items: center;
+  background: var(--tile); border: 2px solid var(--edge); border-radius: 24px;
+  padding: 18px 12px;
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--accent) 14%, transparent);
+  position: relative;
+}
+.card .k { font-family: var(--font-jp); font-weight: 700; font-size: clamp(3rem, 14vw, 5rem); line-height: 1; }
+.card .new.must { background: var(--err); color: #fff; white-space: nowrap; }
+.card .new {
+  position: absolute; top: -10px; right: -6px;
+  background: var(--accent2); color: var(--on-accent);
+  font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 999px;
+}
+input {
+  width: 100%; box-sizing: border-box; text-align: center;
+  font-family: var(--font-display); font-weight: 600; font-size: 1.3rem;
+  padding: 10px 4px; border-radius: 12px;
+  border: 2px solid var(--edge); background: var(--bg); color: var(--fg);
+}
+input:focus { outline: none; border-color: var(--accent); }
+input.bad { border-color: var(--err); background: color-mix(in srgb, var(--err) 12%, var(--bg)); animation: shake .3s; }
+input.good { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, var(--bg)); animation: pop .35s ease-out; }
+input:disabled { opacity: 1; }
+.hint {
+  width: 100%; font: inherit; font-size: .85rem; font-weight: 700; cursor: pointer;
+  border-radius: 10px; border: 2px dashed var(--accent2); background: transparent; color: var(--fg); padding: 6px;
+}
+.hint:not([hidden]) { animation: appear .3s ease-out both; }
+.answer { display: none; }
+.corr {
+  width: 100%; box-sizing: border-box; border-radius: 12px; padding: 8px 6px;
+  font-weight: 700; line-height: 1.35; border: 2px solid var(--err);
+  background: color-mix(in srgb, var(--err) 10%, var(--bg));
+}
+.corr.ok { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 10%, var(--bg)); }
+.corr:not([hidden]) { animation: appear .3s ease-out both; }
+.corr .t { display: block; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.corr b { font-family: var(--font-jp); font-size: 1.15rem; }
+.corr small { display: block; color: var(--muted); }
+.see {
+  width: 100%; font: inherit; font-size: .8rem; font-weight: 700; cursor: pointer;
+  border: 0; background: transparent; color: var(--muted); text-decoration: underline; padding: 2px;
+}
+
+.tries { display: flex; gap: 8px; align-items: center; color: var(--muted); font-weight: 700; }
+.tries i { width: 14px; height: 14px; border-radius: 50%; background: var(--accent2); }
+.tries i.used { background: var(--edge); }
+
+.memo {
+  width: 100%; max-width: 640px; box-sizing: border-box;
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+  background: var(--tile); border: 2px solid var(--edge); border-radius: 24px; padding: 16px;
+}
+.memo div {
+  display: flex; flex-direction: column; gap: 2px; padding: 8px 4px;
+  border-radius: 12px; background: var(--bg); border: 1px solid var(--edge);
+}
+.memo div.isnew { border: 2px solid var(--accent2); }
+.memo b { font-family: var(--font-jp); font-size: 1.6rem; }
+.memo span { font-size: .95rem; color: var(--muted); font-weight: 700; }
+
+/* cartes vocabulaire */
+.card.v { width: min(240px, 100%); gap: 10px; }
+.card.v .k { font-size: clamp(2rem, 9vw, 2.6rem); }
+.card .rom { color: var(--muted); font-weight: 700; margin-top: -4px; }
+.card .fr { font-family: var(--font-display); font-weight: 600; font-size: 1.45rem; line-height: 1.2; text-wrap: balance; min-height: 2.4em; display: grid; place-items: center; }
+.card .lab { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.kind { display: flex; gap: 8px; width: 100%; border-radius: 12px; }
+.kind button {
+  flex: 1; font: inherit; font-weight: 700; cursor: pointer;
+  border-radius: 10px; border: 2px solid var(--edge); background: var(--bg); color: var(--fg); padding: 6px 4px;
+}
+.kind button b { font-family: var(--font-jp); font-size: 1.1rem; margin-right: 4px; }
+.kind button.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 18%, var(--bg)); }
+.kind.bad { animation: shake .3s; }
+.kind.bad button.on, .kind.missing button { border-color: var(--err); }
+.kind.good button.on { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, var(--bg)); }
+.kind button:disabled { cursor: default; }
+.miss.v div { font-weight: 700; }
+
+.cats { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.cat {
+  font: inherit; font-weight: 700; font-size: 1.05rem; cursor: pointer;
+  border-radius: 999px; padding: 10px 18px;
+  border: 2px solid var(--edge); background: var(--tile); color: var(--muted);
+  transition: border-color .15s, background .15s, transform .15s;
+}
+.cat .w, .catlab .w { color: var(--err); }
+.catlab { width: 100%; }
+.cat.on { border-color: var(--accent); color: var(--fg); background: color-mix(in srgb, var(--accent) 16%, var(--tile)); }
+.cat.on::before { content: "✓ "; color: var(--accent); }
+.cat:active { transform: scale(.96); }
+
+.cat.part { border-color: var(--accent); border-style: dashed; color: var(--fg); }
+#btn-words { flex-basis: 100%; max-width: 320px; }
+.stage.words { justify-content: flex-start; }
+.wsecs { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 24px; text-align: left; }
+.whead { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.whead h3 { margin: 0; font-family: var(--font-display); font-size: 1.4rem; }
+.whead h3 .muted { font-size: 1rem; }
+.mini { font: inherit; font-weight: 700; cursor: pointer; border-radius: 999px; padding: 6px 14px; border: 2px solid var(--edge); background: var(--tile); color: var(--fg); }
+.mini:hover { border-color: var(--accent); }
+.wtable { overflow-x: auto; border: 2px solid var(--edge); border-radius: 18px; background: var(--tile); }
+.wtable table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.wtable th:nth-child(2) { width: 30%; } .wtable th:nth-child(3) { width: 25%; }
+.wtable td { overflow-wrap: break-word; }
+.wtable th { font-family: var(--font-display); font-weight: 600; color: var(--muted); text-align: left; padding: 10px; border-bottom: 2px solid var(--edge); }
+.wtable td { padding: 8px 10px; border-top: 1px solid var(--edge); vertical-align: middle; }
+.wtable tr:first-child td { border-top: 0; }
+.wtable td:first-child, .wtable th:first-child { width: 34px; text-align: center; }
+.wtable input[type=checkbox] { border: 0; background: none; animation: none; width: 20px; height: 20px; accent-color: var(--accent); cursor: pointer; padding: 0; }
+.wtable input[type=checkbox]:disabled { cursor: default; }
+.wj { font-family: var(--font-jp); font-weight: 700; font-size: 1.15rem; white-space: nowrap; }
+.tag { font-size: .8rem; padding: 1px 6px; border-radius: 6px; background: color-mix(in srgb, var(--accent2) 25%, var(--tile)); }
+@media (max-width: 520px) { .wtable td, .wtable th { padding: 7px 5px; font-size: .9rem; } .wj { white-space: normal; font-size: 1rem; } }
+.kgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
+.kchip {
+  font: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 8px 4px; border-radius: 14px; border: 2px solid var(--edge); background: var(--tile); color: var(--muted);
+  opacity: .55; transition: border-color .15s, opacity .15s, transform .15s;
+}
+.kchip b { font-family: var(--font-jp); font-size: 1.6rem; color: var(--fg); }
+.kchip span { font-weight: 700; font-size: .85rem; }
+.kchip.on { opacity: 1; border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--tile)); color: var(--fg); }
+.kchip:active { transform: scale(.95); }
+.btn.sticky { position: sticky; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 35%, transparent); }
+
+.score { font-family: var(--font-display); font-weight: 700; font-size: clamp(4rem, 18vw, 7rem); line-height: 1; }
+.score span { color: var(--muted); font-size: .45em; }
+.miss { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 640px; }
+.miss div { background: var(--tile); border: 2px solid var(--err); border-radius: 14px; padding: 6px 12px; }
+.miss b { font-family: var(--font-jp); font-size: 1.4rem; margin-right: 6px; }
+.muted { color: var(--muted); font-weight: 700; margin: 0; }
+
+.toast {
+  position: fixed; z-index: 6; left: 50%; transform: translateX(-50%);
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  background: var(--tile); color: var(--fg); border: 2px solid var(--accent);
+  border-radius: 999px; padding: 10px 20px; font-weight: 700;
+}
+
+button:focus-visible, input:focus-visible { outline: 3px solid var(--accent2); outline-offset: 3px; }
+@keyframes fondu { from { opacity: 0; filter: blur(8px); } to { opacity: 1; filter: blur(0); } }
+@keyframes monte { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes appear { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes pop { 0% { transform: scale(1); } 45% { transform: scale(1.06); } 100% { transform: scale(1); } }
+@keyframes shake { 0%,100% { transform: none; } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+@keyframes drift { from { transform: rotate(-8deg) translate(-30px, 20px); } to { transform: rotate(8deg) translate(30px, -20px); } }
+@keyframes drift2 { from { transform: rotate(6deg) translate(25px, 30px) scale(.97); } to { transform: rotate(-6deg) translate(-25px, -15px) scale(1.03); } }
+@keyframes drift3 { from { transform: rotate(-10deg) translate(20px, -25px); } to { transform: rotate(10deg) translate(-35px, 25px); } }
+@media (prefers-reduced-motion: reduce) {
+  h1, .kana, .tile, .deco g, .stage, input { animation: none !important; }
+}
+@media (max-width: 400px) { .memo { grid-template-columns: repeat(3, 1fr); } }
+</style>
+
+<svg class="deco" viewBox="0 0 1536 960" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <g><ellipse cx="60" cy="40" rx="370" ry="420"/><ellipse cx="70" cy="55" rx="325" ry="370"/><ellipse cx="85" cy="65" rx="300" ry="335"/></g>
+  <g><ellipse cx="1400" cy="250" rx="525" ry="445"/><ellipse cx="1410" cy="260" rx="520" ry="435"/></g>
+  <g><ellipse cx="1520" cy="90" rx="410" ry="370"/><ellipse cx="1430" cy="110" rx="285" ry="305"/></g>
+  <g><ellipse cx="120" cy="960" rx="515" ry="335"/><ellipse cx="120" cy="965" rx="495" ry="318"/></g>
+</svg>
+
+<button class="pill home" id="btn-home" type="button" hidden>← Retour</button>
+<div class="bar">
+  <button class="pill" id="btn-theme" type="button" aria-label="Changer de thème"><span class="sw"></span><span id="theme-label">Sombre</span></button>
+</div>
+
+
+<main class="stage" id="v-lobby">
+  <div class="head">
+    <h1><span class="a">HO</span>E<span class="b">NN</span></h1>
+    <div class="kana">ホウエン</div>
+  </div>
+  <div class="tiles">
+    <button class="tile" type="button" data-mode="hira"><span class="jp">あ</span><span class="name">Hiragana</span></button>
+    <button class="tile" type="button" data-mode="vocab"><span class="jp">ことば</span><span class="name">Vocabulaire</span></button>
+    <button class="tile soon" type="button" data-t="Phrases"><span class="jp">の</span><span class="name">Phrases</span></button>
+  </div>
+</main>
+
+<main class="stage" id="v-setup" hidden>
+  <div class="cats" id="cats" hidden>
+    <p class="muted catlab"><span class="w">⚠</span> Verbes et couleurs toujours inclus. Ajoute :</p>
+    <button class="cat" type="button" data-g="verbe2">Autres verbes</button>
+    <button class="cat" type="button" data-g="adj">Adjectifs</button>
+    <button class="cat" type="button" data-g="nom">Noms</button>
+    <button class="cat" type="button" data-g="base">Mots de base</button>
+  </div>
+  <button class="btn ghost" id="btn-words" type="button">Voir et choisir les mots</button>
+  <h2>Combien de <span class="a">séries</span> ?</h2>
+  <div class="choices">
+    <button class="choice" type="button" data-n="5">5</button>
+    <button class="choice" type="button" data-n="10">10</button>
+    <button class="choice" type="button" data-n="25">25</button>
+  </div>
+  <p class="muted" id="setup-sub">3 hiragana par question</p>
+</main>
+
+<main class="stage words" id="v-words" hidden>
+  <h2 id="w-title">Mes <span class="a">mots</span></h2>
+  <p class="muted" id="w-count"></p>
+  <div class="wsecs" id="wsecs"></div>
+  <button class="btn sticky" id="btn-words-ok" type="button">Valider ma sélection</button>
+</main>
+
+<main class="stage" id="v-quiz" hidden>
+  <div class="progress" id="progress"></div>
+  <div class="cards" id="cards"></div>
+  <div class="tries" id="tries"></div>
+  <div class="row">
+    <button class="btn" id="btn-check" type="button">Valider</button>
+    <button class="btn" id="btn-next" type="button" hidden>Suivant →</button>
+    <button class="btn ghost" id="btn-skip" type="button">Passer</button>
+  </div>
+</main>
+
+<main class="stage" id="v-end" hidden>
+  <div class="score" id="score"></div>
+  <div class="miss" id="miss"></div>
+  <div class="row">
+    <button class="btn" id="btn-again" type="button">Rejouer</button>
+    <button class="btn ghost" id="btn-menu" type="button">Accueil</button>
+  </div>
+</main>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* ============ HIRAGANA DU COURS ============
+   Chaque semaine : ajoute une nouvelle ligne "semaine".
+   La dernière semaine compte comme "nouvelle" et tombe plus souvent. */
+const SEMAINES = [
+  ['あ a','い i','う u','え e','お o','か ka','き ki','く ku','け ke','こ ko',
+   'さ sa','し shi','す su','せ se','そ so','た ta','ち chi','つ tsu','て te','と to'],
+  ['な na','に ni','ぬ nu','ね ne','の no','は ha','ひ hi','ふ fu','へ he','ほ ho'],
+];
+const POIDS_NOUVEAU = 3;   // les nouveaux tombent 3x plus souvent
+const VARIANTES = { shi: ['si'], chi: ['ti'], tsu: ['tu'], fu: ['hu'] };
+
+/* ============ VOCABULAIRE ============
+   Format : 'hiragana|romaji|français'  (plusieurs sens séparés par / ou ,)
+   ⚠ À CONNAÎTRE (toujours inclus) : VERBES + COULEURS. Au moins un par question.
+   OPTIONNEL (le joueur coche) : AUTRES_VERBES, ADJ_I, ADJ_NA, NOMS, BASE. */
+const VERBES = [
+  'たべる|taberu|manger', 'のむ|nomu|boire', 'よむ|yomu|lire',
+  'みる|miru|voir, regarder', 'かう|kau|acheter',
+  'する|suru|faire / produire', 'よやくする|yoyaku suru|réserver', 'りょうりする|ryouri suru|cuisiner', 'りょこうする|ryokou suru|voyager',
+];
+/* COULEURS = adjectifs, à connaître absolument */
+const COULEURS_I = [
+  'あか|aka|rouge', 'あお|ao|bleu', 'きいろ|kiiro|jaune', 'ちゃいろ|chairo|marron', 'くろ|kuro|noir', 'しろ|shiro|blanc',
+];
+const COULEURS_NA = [
+  'みどり|midori|vert', 'オレンジ|orenji|orange', 'ピンク|pinku|rose', 'はいいろ / グレー|haiiro|gris', 'むらさき|murasaki|violet',
+];
+
+const AUTRES_VERBES = [
+  'かく|kaku|écrire / dessiner / peindre', 'いく|iku|aller', 'はなす|hanasu|parler',
+  'かえる|kaeru|rentrer / revenir / retourner', 'はいる|hairu|entrer', 'でる|deru|sortir',
+  'わかる|wakaru|comprendre', 'しる|shiru|savoir / connaître',
+  'いる|iru|être / avoir (pour le vivant)', 'ある|aru|être / avoir (pour les objets)',
+  'です / だ|desu|être', 'くる|kuru|venir', 'さがす|sagasu|chercher', 'まつ|matsu|attendre',
+  'ちゅうもんする|chuumon suru|commander', 'かかる|kakaru|prendre (du temps / de l’argent)',
+];
+const ADJ_I = [
+  'おおきい|ookii|grand / gros', 'ちいさい|chiisai|petit', 'たかい|takai|cher / haut', 'やすい|yasui|bon marché / pas cher',
+  'あたらしい|atarashii|nouveau', 'ふるい|furui|vieux / ancien', 'はやい|hayai|rapide / tôt', 'おそい|osoi|lent / tard',
+  'いい|ii|bon / bien', 'わるい|warui|mauvais / méchant', 'あつい|atsui|chaud', 'さむい|samui|froid (temps)',
+  'すずしい|suzushii|frais', 'あたたかい|atatakai|tiède / chaud doux', 'おもい|omoi|lourd', 'かるい|karui|léger',
+  'むずかしい|muzukashii|difficile / compliqué', 'やさしい|yasashii|facile / gentil', 'おもしろい|omoshiroi|intéressant / drôle',
+  'つまらない|tsumaranai|ennuyeux', 'うれしい|ureshii|heureux / content', 'かなしい|kanashii|triste',
+  'こわい|kowai|effrayant / avoir peur', 'いそがしい|isogashii|occupé', 'ひろい|hiroi|large / spacieux',
+  'おいしい|oishii|délicieux', 'かわいい|kawaii|mignon', 'たのしい|tanoshii|amusant', 'ながい|nagai|long',
+  'かたい|katai|dur / solide / coriace', 'うまい|umai|bon / habile', 'くらい|kurai|sombre',
+  'あまい|amai|sucré / doux / naïf', 'きたない|kitanai|sale / dégoûtant',
+];
+const ADJ_NA = [
+  'きれい|kirei|beau / propre', 'すき|suki|aimer / apprécier / préféré', 'きらい|kirai|détester / ne pas aimer',
+  'じょうず|jouzu|habile / doué', 'へた|heta|maladroit / nul / pas doué', 'しずか|shizuka|calme / silencieux',
+  'にぎやか|nigiyaka|animé / bruyant', 'べんり|benri|pratique / commode', 'ふべん|fuben|peu pratique',
+  'げんき|genki|en forme / énergique / dynamique', 'びょうき|byouki|malade', 'ひま|hima|libre / disponible',
+  'たいせつ|taisetsu|important / précieux', 'とくい|tokui|fort en / doué pour', 'だめ|dame|nul / interdit',
+  'しんせつ|shinsetsu|gentil / aimable', 'らく|raku|facile / confortable', 'いろいろ|iroiro|varié / divers',
+  'とくべつ|tokubetsu|spécial', 'ふつう|futsuu|normal / ordinaire', 'まじめ|majime|sérieux / appliqué',
+  'かんたん|kantan|simple / facile', 'ふくざつ|fukuzatsu|compliqué', 'ていねい|teinei|poli / courtois',
+  'ゆうめい|yuumei|célèbre / connu', 'きけん|kiken|dangereux', 'へん|hen|bizarre / étrange',
+  'たいへん|taihen|difficile / dur / galère / pénible',
+];
+const NOMS = [
+  'ともだち|tomodachi|ami / amie', 'せんせい|sensei|professeur', 'がっこう|gakkou|école', 'みず|mizu|eau',
+  'たべもの|tabemono|nourriture', 'ねこ|neko|chat', 'いぬ|inu|chien', 'ほん|hon|livre', 'でんしゃ|densha|train',
+  'えき|eki|gare', 'いま|ima|maintenant', 'きょう|kyou|aujourd’hui', 'おんがく|ongaku|musique',
+  'りょうり|ryouri|cuisine / plat', 'スポーツ|supootsu|sport', 'えいが|eiga|film', 'ラーメン|raamen|ramen',
+  'へや|heya|chambre', 'かぞく|kazoku|famille', 'ひと|hito|personne', 'べんきょう|benkyou|études',
+  'りょこう|ryokou|voyage / trajet', 'いえ|ie|maison', 'やま|yama|montagne / colline', 'さかな|sakana|poisson',
+  'くすり|kusuri|médicament', 'にんげん|ningen|humains', 'かみ|kami|cheveux / dieu / déesse / papier',
+  'ケーキ|keeki|gâteau', 'のみもの|nomimono|boisson', 'かばん|kaban|sac / cartable', 'おみせ|omise|magasin / boutique',
+  'ホテル|hoteru|hôtel', 'よやく|yoyaku|réservation', 'ジャケット|jaketto|veste', 'ボール|booru|balle / ballon',
+  'くつ|kutsu|chaussures', 'ペン|pen|stylo', 'とり|tori|oiseau', 'うた|uta|chanson / poème', 'もの|mono|chose',
+  'さけ|sake|alcool', 'き|ki|arbre', 'うみ|umi|mer / océan', 'まど|mado|fenêtre', 'なにか|nanika|quelque chose',
+  'なにも|nanimo|rien', 'トイレ|toire|toilettes', 'どこか|dokoka|quelque part', 'げんきん|genkin|espèces / liquide',
+  'じてんしゃ|jitensha|vélo', 'みち|michi|chemin', 'かわ|kawa|rivière', 'じんじゃ|jinja|sanctuaire (shinto)',
+  'おてら|otera|temple (bouddhiste)', 'ひる|hiru|midi', 'ひるごはん|hiru gohan|repas du midi / déjeuner',
+  'まよなか|mayonaka|minuit', 'テレビ|terebi|télévision / télé', 'ごはん|gohan|repas / riz', 'つくえ|tsukue|bureau',
+  'ふね|fune|bateau', 'おかね|okane|argent', 'うち|uchi|chez soi', 'こうえん|kouen|parc', 'にほん|nihon|Japon',
+  'くに|kuni|pays', 'にく|niku|viande', 'にほんご|nihongo|japonais (langue)', 'てんき|tenki|temps / météo',
+  'けいたい|keitai|téléphone portable / portable', 'ぎゅうにゅう|gyuunyuu|lait', 'やさい|yasai|légumes',
+  'まち|machi|ville / bourg', 'くるま|kuruma|voiture', 'そら|sora|ciel', 'えんぴつ|enpitsu|crayon',
+  'ぼうし|boushi|chapeau', 'きっぷ|kippu|billet / ticket', 'ふく|fuku|vêtements', 'たてもの / ビル|tatemono|bâtiment',
+  'ちかてつ|chikatetsu|métro', 'ちゅうもん|chuumon|commande', 'じ|ji|heure', 'ふん / ぷん|fun|minute',
+  'はじまり|hajimari|début / commencement',
+];
+const BASE = [
+  'あの…|ano|euh', 'はい|hai|oui', 'いいえ|iie|non', 'ありがとう|arigatou|merci', 'すみません|sumimasen|excusez-moi',
+  'おはよう|ohayou|bonjour (matin)', 'こんにちは|konnichiwa|bonjour (journée)', 'こんばんは|konbanwa|bonsoir',
+  'さようなら|sayounara|au revoir', 'おねがいします|onegaishimasu|s’il vous plaît', 'わたし|watashi|moi / je',
+  'はじめまして|hajimemashite|enchanté / enchantée', '…といいます|to iimasu|je m’appelle…',
+  'よろしくおねがいします|yoroshiku onegaishimasu|ravi de faire votre connaissance / ravie de faire votre connaissance',
+];
+const ROMAJI_EN_PLUS = {
+  ii: ['yoi'], raku: ['rakku'], haiiro: ['guree', 'gure'],
+  aka: ['akai'], ao: ['aoi'], kiiro: ['kiiroi'], chairo: ['chairoi'], kuro: ['kuroi'], shiro: ['shiroi'],
+  suru: ['shimasu'], desu: ['da'], kuru: ['kimasu'], omise: ['mise'], tatemono: ['biru'], fun: ['pun'],
+  supootsu: ['supoutsu'], konnichiwa: ['konnichiha'], konbanwa: ['konbanha', 'kombanwa'], 'to iimasu': ['to moushimasu'],
+};
+const FR_EN_PLUS = { marron: ['maron'] };
+const POIDS_CHOISI = 3;   // les mots cochés à la main tombent 3x plus souvent que ceux de base
+
+const PAR_QUESTION = 3;
+const ESSAIS = 3;
+
+const KANA = SEMAINES.flatMap((s, w) => s.map(x => {
+  const [k, r] = x.split(' ');
+  return { k, r, isNew: w === SEMAINES.length - 1 };
+}));
+const mk = (cat, grp, must) => s => { const [jp, r, fr] = s.split('|'); return { jp, r, fr, cat, grp, must }; };
+const seen = new Set();
+const VOCAB = [
+  ...VERBES.map(mk('verbe', 'must', true)),
+  ...COULEURS_I.map(mk('i', 'must', true)), ...COULEURS_NA.map(mk('na', 'must', true)),
+  ...AUTRES_VERBES.map(mk('verbe', 'verbe2', false)),
+  ...ADJ_I.map(mk('i', 'adj', false)), ...ADJ_NA.map(mk('na', 'adj', false)),
+  ...NOMS.map(mk('mot', 'nom', false)), ...BASE.map(mk('mot', 'base', false)),
+].filter(x => { const k = x.cat + ':' + x.r; if (seen.has(k)) return false; seen.add(k); return true; });  // anti-doublons
+VOCAB.forEach(x => x.id = x.cat + ':' + x.r);
+const GROUPES = [
+  ['must', '⚠ À connaître (toujours inclus)'], ['verbe2', 'Autres verbes'], ['adj', 'Adjectifs'],
+  ['nom', 'Noms'], ['base', 'Mots de base'],
+];
+let sel = new Set();
+try {
+  const c = JSON.parse(localStorage.getItem('hoenn-sel'));
+  if (Array.isArray(c)) sel = new Set(c);
+  else {
+    const old = JSON.parse(localStorage.getItem('hoenn-extras'));
+    if (Array.isArray(old)) VOCAB.forEach(x => { if (old.includes(x.grp)) sel.add(x.id); });
+  }
+} catch (e) {}
+let hoff = new Set();   // hiragana retirés par le joueur (les nouveaux sont inclus d'office)
+try { const h = JSON.parse(localStorage.getItem('hoenn-hoff')); if (Array.isArray(h)) hoff = new Set(h); } catch (e) {}
+const saveHoff = () => { try { localStorage.setItem('hoenn-hoff', JSON.stringify([...hoff])); } catch (e) {} };
+const hiraPool = () => KANA.filter(x => !hoff.has(x.k));
+const saveSel = () => { try { localStorage.setItem('hoenn-sel', JSON.stringify([...sel])); } catch (e) {} };
+
+const $ = id => document.getElementById(id);
+const views = ['v-lobby', 'v-setup', 'v-words', 'v-quiz', 'v-end'];
+function show(id) {
+  views.forEach(v => $(v).hidden = v !== id);
+  $('btn-home').hidden = id === 'v-lobby';
+  scrollTo(0, 0);
+}
+
+/* ---- thème ---- */
+const root = document.documentElement;
+function isDark() {
+  const t = root.dataset.theme;
+  return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+}
+function refresh() { $('theme-label').textContent = isDark() ? 'Clair' : 'Sombre'; }
+try { const s = localStorage.getItem('hoenn-theme'); if (s) root.dataset.theme = s; } catch (e) {}
+refresh();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', refresh);
+$('btn-theme').onclick = () => {
+  const next = isDark() ? 'light' : 'dark';
+  root.dataset.theme = next;
+  try { localStorage.setItem('hoenn-theme', next); } catch (e) {}
+  refresh();
+};
+
+/* ---- tirage pondéré sans doublon ---- */
+function weighted(pool, n, w) {
+  pool = pool.slice(); const out = [];
+  while (out.length < n && pool.length) {
+    const total = pool.reduce((s, x) => s + w(x), 0);
+    let r = Math.random() * total, i = 0;
+    for (; i < pool.length; i++) { r -= w(pool[i]); if (r <= 0) break; }
+    out.push(pool.splice(Math.min(i, pool.length - 1), 1)[0]);
+  }
+  return out;
+}
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+let used = new Set();
+function fresh(pool) {   // évite de revoir un mot pendant la partie, tant que possible
+  let f = pool.filter(x => !used.has(x));
+  if (f.length < PAR_QUESTION) { pool.forEach(x => used.delete(x)); f = pool.slice(); }
+  return f;
+}
+function pickHira(n) {
+  const out = weighted(fresh(hiraPool()), n, x => x.isNew ? POIDS_NOUVEAU : 1);
+  out.forEach(x => used.add(x));
+  return out.map(c => ({ c, dir: 'kana' }));
+}
+function pickVocab(n) {
+  const pool = fresh(VOCAB.filter(x => x.must || sel.has(x.id)));
+  const musts = pool.filter(x => x.must);
+  const first = musts.length ? [musts[Math.random() * musts.length | 0]] : [];
+  const rest = weighted(pool.filter(x => !first.includes(x)), n - first.length,
+    x => x.must ? 1 : POIDS_CHOISI);
+  [...first, ...rest].forEach(x => used.add(x));
+  return shuffle([...first, ...rest]).map(c => ({ c, dir: Math.random() < .5 ? 'jp' : 'fr' }));
+}
+
+/* ---- correction ---- */
+const normFr = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .replace(/[’`]/g, "'").replace(/\(.*?\)/g, '').replace(/[.!?]/g, '')
+  .replace(/\s+/g, ' ').trim().replace(/^(se |s'|le |la |l'|les |un |une |du |des |de la |etre )/, '').trim().replace(/s$/, '');
+const normJp = s => s.toLowerCase().replace(/\s+/g, '').replace(/ou/g, 'o').replace(/oo/g, 'o').replace(/uu/g, 'u');
+function okText(q, val) {
+  if (q.dir === 'kana') {
+    const v = val.trim().toLowerCase();
+    return v === q.c.r || (VARIANTES[q.c.r] || []).includes(v);
+  }
+  if (q.dir === 'jp') {
+    const v = normFr(val);
+    return !!v && [q.c.fr, ...q.c.fr.split(/[\/,]/), ...(FR_EN_PLUS[q.c.fr] || [])].map(normFr).filter(Boolean).includes(v);
+  }
+  let v = val.toLowerCase().trim().replace(/\s+/g, ' ');
+  if (q.c.cat === 'na') v = v.replace(/ ?na$/, '');
+  return [q.c.r, ...(ROMAJI_EN_PLUS[q.c.r] || [])].map(normJp).includes(normJp(v));
+}
+const expected = q => q.dir === 'jp' ? q.c.fr : q.c.r;
+const firstLetter = q => { const w = q.dir === 'jp' ? q.c.fr.split(/[\/,]/)[0].trim() : q.c.r; return w.slice(0, Math.ceil(w.length / 2)); };
+const isAdj = q => q.c.cat === 'i' || q.c.cat === 'na';
+
+/* ---- quiz ---- */
+let mode = 'hira', total = 1, nWords = 5, qi = 0, cur = [], st = [], tries = 0, good = 0, missed = [];
+
+function start(n) {
+  nWords = n * PAR_QUESTION; total = n; qi = 0; good = 0; missed = []; used = new Set();
+  show('v-quiz');
+  next();
+}
+function cardHtml(q, i) {
+  const input = `<input id="in-${i}" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Réponse ${i + 1}">
+    <button class="hint" id="hint-${i}" type="button" hidden>💡 Indice</button>
+    <button class="see" id="see-${i}" type="button">Jamais vu ? Voir la réponse</button>
+    <div class="corr" id="corr-${i}" hidden></div>`;
+  if (q.dir === 'kana') return `<div class="card">
+      ${q.c.isNew ? '<span class="new">Nouveau</span>' : ''}
+      <span class="k" lang="ja">${q.c.k}</span>${input}</div>`;
+  const kind = isAdj(q) ? `<div class="kind" id="kind-${i}" role="group" aria-label="Type d'adjectif">
+      <button type="button" data-k="i"><b lang="ja">い</b>i</button>
+      <button type="button" data-k="na"><b lang="ja">な</b>na</button></div>` : '';
+  const head = q.dir === 'jp'
+    ? `<span class="lab">En français</span><span class="k" lang="ja">${q.c.jp}</span><span class="rom">${q.c.r}</span>`
+    : `<span class="lab">En japonais (romaji)</span><span class="fr">${q.c.fr}</span>`;
+  const must = q.c.must ? '<span class="new must" title="À connaître absolument">⚠ À connaître</span>' : '';
+  return `<div class="card v">${must}${head}${kind}${input}</div>`;
+}
+function next() {
+  const cnt = Math.min(PAR_QUESTION, nWords - qi * PAR_QUESTION);
+  cur = mode === 'hira' ? pickHira(cnt) : pickVocab(cnt);
+  st = cur.map(q => ({ text: false, kind: isAdj(q) ? false : null, pickedKind: null, hinted: false, revealed: false }));
+  tries = 0;
+  $('cards').innerHTML = cur.map(cardHtml).join('');
+  $('progress').innerHTML = Array.from({ length: total }, (_, i) =>
+    `<i class="${i < qi ? 'done' : i === qi ? 'now' : ''}"></i>`).join('');
+  drawTries();
+  $('btn-check').hidden = false; $('btn-skip').hidden = false; $('btn-next').hidden = true;
+  cur.forEach((q, i) => {
+    $('hint-' + i).onclick = () => {
+      const el = $('in-' + i);
+      el.value = firstLetter(q); el.className = '';
+      $('hint-' + i).hidden = true;
+      el.focus(); el.setSelectionRange(el.value.length, el.value.length);
+    };
+    $('see-' + i).onclick = () => {
+      st[i].revealed = true;
+      lockCard(i); showCorr(q, i, false);
+      if (st.every(handled)) finishQ();
+    };
+    $('in-' + i).addEventListener('keydown', e => {
+      if (e.key !== 'Enter') return;
+      const nxt = $('in-' + (i + 1));
+      if (nxt && !nxt.value && !nxt.disabled) nxt.focus(); else check();
+    });
+    const kind = $('kind-' + i);
+    if (kind) kind.querySelectorAll('button').forEach(b => b.onclick = () => {
+      st[i].pickedKind = b.dataset.k;
+      kind.classList.remove('bad', 'missing');
+      kind.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    });
+  });
+  $('in-0').focus();
+}
+function drawTries() {
+  $('tries').innerHTML = 'Essais ' + Array.from({ length: ESSAIS }, (_, i) =>
+    `<i class="${i < tries ? 'used' : ''}"></i>`).join('');
+}
+const done = s => s.text && s.kind !== false;
+const handled = s => done(s) || s.revealed;
+function lockCard(i) {
+  $('hint-' + i).hidden = true; $('see-' + i).hidden = true;
+  $('in-' + i).disabled = true;
+  const kind = $('kind-' + i);
+  if (kind) kind.querySelectorAll('button').forEach(b => b.disabled = true);
+}
+function showCorr(q, i, ok) {
+  const el = $('corr-' + i);
+  const t = `<span class="t">${ok ? 'Bravo' : 'Correction'}</span>`;
+  if (q.dir === 'kana') el.innerHTML = `${t}<b lang="ja">${q.c.k}</b> = ${q.c.r}`;
+  else {
+    const kind = isAdj(q) ? `<small>adjectif en ${q.c.cat === 'i' ? 'い i' : 'な na'}</small>` : '';
+    el.innerHTML = `${t}<b lang="ja">${q.c.jp}</b> ${q.c.r}${q.c.cat === 'na' ? ' na' : ''}<br>${q.c.fr}${kind}`;
+  }
+  el.className = 'corr' + (ok ? ' ok' : '');
+  el.hidden = false;
+}
+function check() {
+  if (!$('btn-next').hidden) { goNext(); return; }
+  tries++; drawTries();
+  cur.forEach((q, i) => {
+    const s = st[i], el = $('in-' + i);
+    if (s.revealed) return;
+    if (!s.text) {
+      if (okText(q, el.value)) { s.text = true; el.className = 'good'; el.disabled = true; $('hint-' + i).hidden = true; }
+      else {
+        el.className = ''; void el.offsetWidth; el.className = 'bad';
+        if (tries < ESSAIS && !s.hinted) { $('hint-' + i).hidden = false; s.hinted = true; }
+      }
+    }
+    if (s.kind === false) {
+      const kind = $('kind-' + i);
+      kind.classList.remove('bad', 'missing'); void kind.offsetWidth;
+      if (s.pickedKind === q.c.cat) {
+        s.kind = true; kind.classList.add('good');
+        kind.querySelectorAll('button').forEach(b => b.disabled = true);
+      } else kind.classList.add(s.pickedKind ? 'bad' : 'missing');
+    }
+  });
+  if (st.every(handled) || tries >= ESSAIS) finishQ();
+  else { const bad = st.findIndex(s => !s.text && !s.revealed); if (bad >= 0) $('in-' + bad).select(); }
+}
+function finishQ() {
+  cur.forEach((q, i) => {
+    const s = st[i];
+    lockCard(i);
+    if (s.revealed) { missed.push(q); return; }
+    const ok = done(s);
+    showCorr(q, i, ok);
+    if (ok) good++; else missed.push(q);
+  });
+  $('btn-check').hidden = true; $('btn-skip').hidden = true; $('btn-next').hidden = false;
+  $('btn-next').textContent = qi + 1 < total ? 'Suivant →' : 'Voir le score';
+  $('btn-next').focus();
+}
+function goNext() {
+  qi++;
+  if (qi < total) next(); else end();
+}
+function end() {
+  const max = nWords;
+  $('score').innerHTML = `${good}<span> / ${max}</span>`;
+  $('miss').className = 'miss' + (mode === 'vocab' ? ' v' : '');
+  $('miss').innerHTML = missed.length
+    ? missed.map(q => q.dir === 'kana'
+        ? `<div><b lang="ja">${q.c.k}</b>${q.c.r}</div>`
+        : `<div><b lang="ja">${q.c.jp}</b>${q.c.r}${q.c.cat === 'na' ? ' na' : ''} = ${q.c.fr}${isAdj(q) ? ` (${q.c.cat === 'i' ? 'い' : 'な'})` : ''}</div>`
+      ).join('')
+    : '<p class="muted">Sans faute, bravo !</p>';
+  show('v-end');
+}
+
+/* ---- navigation ---- */
+document.querySelectorAll('.tile[data-mode]').forEach(b => b.onclick = () => {
+  mode = b.dataset.mode;
+  $('setup-sub').textContent = mode === 'hira' ? '3 hiragana par série' : '3 mots par série';
+  $('btn-words').textContent = mode === 'hira' ? 'Voir et choisir les hiragana' : 'Voir et choisir les mots';
+  $('cats').hidden = mode !== 'vocab';
+  drawCats();
+  show('v-setup');
+});
+const inGrp = g => VOCAB.filter(x => x.grp === g);
+function drawCats() {
+  document.querySelectorAll('.cat').forEach(b => {
+    const all = inGrp(b.dataset.g), n = all.filter(x => sel.has(x.id)).length;
+    if (!b.dataset.name) b.dataset.name = b.textContent;
+    b.textContent = n && n < all.length ? `${b.dataset.name} · ${n}/${all.length}` : b.dataset.name;
+    b.classList.toggle('on', n === all.length);
+    b.classList.toggle('part', n > 0 && n < all.length);
+    b.setAttribute('aria-pressed', String(n === all.length));
+  });
+}
+document.querySelectorAll('.cat').forEach(b => b.onclick = () => {
+  const all = inGrp(b.dataset.g), full = all.every(x => sel.has(x.id));
+  all.forEach(x => full ? sel.delete(x.id) : sel.add(x.id));
+  saveSel(); drawCats();
+});
+
+/* ---- tableau des mots ---- */
+const typeTag = x => x.cat === 'i' ? '<span class="tag" lang="ja">い</span>' : x.cat === 'na' ? '<span class="tag" lang="ja">な</span>' : '';
+function wCount() {
+  if (mode === 'hira') { $('w-count').textContent = `${hiraPool().length} hiragana au programme`; return; }
+  const n = VOCAB.filter(x => x.must || sel.has(x.id)).length;
+  $('w-count').textContent = `${n} mots au programme`;
+}
+function drawHira() {
+  $('w-title').innerHTML = 'Mes <span class="a">hiragana</span>';
+  const groups = [['h-new', 'Nouveaux', KANA.filter(x => x.isNew)], ['h-old', 'Déjà vus', KANA.filter(x => !x.isNew)]];
+  $('wsecs').innerHTML = groups.map(([g, name, all]) => `<section class="wsec">
+      <div class="whead"><h3>${name} <span class="muted">${all.length}</span></h3>
+        <div class="row"><button class="mini" type="button" data-all="${g}">Tout</button><button class="mini" type="button" data-none="${g}">Rien</button></div>
+      </div>
+      <div class="kgrid">${all.map(x => `<button type="button" class="kchip${hoff.has(x.k) ? '' : ' on'}" data-k="${x.k}" aria-pressed="${!hoff.has(x.k)}"><b lang="ja">${x.k}</b><span>${x.r}</span></button>`).join('')}</div>
+    </section>`).join('');
+  wCount();
+}
+function drawWords() {
+  if (mode === 'hira') { drawHira(); return; }
+  $('w-title').innerHTML = 'Mes <span class="a">mots</span>';
+  $('wsecs').innerHTML = GROUPES.map(([g, name]) => {
+    const all = inGrp(g), must = g === 'must';
+    return `<section class="wsec" data-g="${g}">
+      <div class="whead"><h3>${name} <span class="muted">${all.length}</span></h3>
+        ${must ? '' : `<div class="row"><button class="mini" type="button" data-all="${g}">Tout</button><button class="mini" type="button" data-none="${g}">Rien</button></div>`}
+      </div>
+      <div class="wtable"><table>
+        <thead><tr><th></th><th>Japonais</th><th>Romaji</th><th>Français</th></tr></thead>
+        <tbody>${all.map(x => `<tr>
+          <td><input type="checkbox" id="w-${x.id.replace(/[^a-z0-9]/gi, '_')}" data-id="${x.id}" ${must || sel.has(x.id) ? 'checked' : ''} ${must ? 'disabled' : ''} aria-label="${x.r}"></td>
+          <td lang="ja" class="wj">${x.jp} ${typeTag(x)}</td>
+          <td>${x.r}${x.cat === 'na' ? ' na' : ''}</td>
+          <td>${x.fr}</td></tr>`).join('')}</tbody>
+      </table></div></section>`;
+  }).join('');
+  wCount();
+}
+$('wsecs').addEventListener('change', e => {
+  const id = e.target.dataset.id; if (!id) return;
+  e.target.checked ? sel.add(id) : sel.delete(id);
+  saveSel(); wCount();
+});
+$('wsecs').addEventListener('click', e => {
+  const chip = e.target.closest('.kchip');
+  if (chip) {
+    const k = chip.dataset.k;
+    hoff.has(k) ? hoff.delete(k) : hoff.add(k);
+    chip.classList.toggle('on', !hoff.has(k)); chip.setAttribute('aria-pressed', String(!hoff.has(k)));
+    saveHoff(); wCount(); return;
+  }
+  const g = e.target.dataset.all || e.target.dataset.none; if (!g) return;
+  if (g.startsWith('h-')) {
+    KANA.filter(x => x.isNew === (g === 'h-new')).forEach(x => e.target.dataset.all ? hoff.delete(x.k) : hoff.add(x.k));
+    saveHoff(); drawHira(); return;
+  }
+  inGrp(g).forEach(x => e.target.dataset.all ? sel.add(x.id) : sel.delete(x.id));
+  saveSel(); drawWords();
+});
+$('btn-words').onclick = () => { drawWords(); show('v-words'); };
+$('btn-words-ok').onclick = () => { drawCats(); show('v-setup'); };
+document.querySelectorAll('.choice').forEach(b => b.onclick = () => {
+  if (mode === 'hira' && hiraPool().length < PAR_QUESTION) { say('Choisis au moins 3 hiragana'); return; }
+  start(+b.dataset.n);
+});
+$('btn-check').onclick = check;
+$('btn-next').onclick = goNext;
+$('btn-skip').onclick = finishQ;
+$('btn-again').onclick = () => show('v-setup');
+$('btn-menu').onclick = () => show('v-lobby');
+$('btn-home').onclick = () => show('v-lobby');
+
+function say(t) {
+  const toast = $('toast');
+  toast.textContent = t; toast.hidden = false;
+  clearTimeout(say.t); say.t = setTimeout(() => toast.hidden = true, 1800);
+}
+document.querySelectorAll('.soon').forEach(b => b.onclick = () => say(b.dataset.t + ' : bientôt disponible'));
+</script>
+
+</body>
+</html>
