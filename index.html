@@ -23,6 +23,7 @@
   --on-accent: #ffffff;
   --ok: #1f9d55;
   --err: #e0364f;
+  --warn: #f2902f;
   --font-display: "Outfit", "Segoe UI", system-ui, sans-serif;
   --font-body: "DM Sans", system-ui, sans-serif;
   --font-jp: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
@@ -31,13 +32,13 @@
   :root:not([data-theme="light"]) {
     --bg: #000000; --fg: #ffffff; --muted: #b8a9b0;
     --tile: #111111; --edge: #2c2226; --accent: #ff5fa2; --accent2: #ff9a3c;
-    --on-accent: #000000; --ok: #4ade80; --err: #ff5470; color-scheme: dark;
+    --on-accent: #000000; --ok: #4ade80; --err: #ff5470; --warn: #ffb547; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #000000; --fg: #ffffff; --muted: #b8a9b0;
   --tile: #111111; --edge: #2c2226; --accent: #ff5fa2; --accent2: #ff9a3c;
-  --on-accent: #000000; --ok: #4ade80; --err: #ff5470; color-scheme: dark;
+  --on-accent: #000000; --ok: #4ade80; --err: #ff5470; --warn: #ffb547; color-scheme: dark;
 }
 :root[data-theme="light"] { color-scheme: light; }
 
@@ -264,6 +265,53 @@ input:disabled { opacity: 1; }
 .kchip:active { transform: scale(.95); }
 .btn.sticky { position: sticky; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 35%, transparent); }
 
+/* phrases */
+.pcard {
+  width: min(640px, 100%); box-sizing: border-box; position: relative;
+  display: flex; flex-direction: column; gap: 14px; align-items: stretch;
+  background: var(--tile); border: 2px solid var(--edge); border-radius: 24px; padding: 18px 16px;
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+.pcard.locked .pbank { display: none; }
+.ptop { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ptop .lab { margin-right: auto; }
+.pfr { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: clamp(1.3rem, 5.5vw, 1.8rem); line-height: 1.25; text-wrap: balance; }
+.pans {
+  min-height: 74px; display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start; justify-content: center;
+  padding: 10px 6px; border-radius: 16px; border: 2px dashed var(--edge);
+}
+.pans:empty::before { content: "Touche les mots ci-dessous"; color: var(--muted); font-weight: 700; align-self: center; margin: auto; }
+.pans.bad { border-color: var(--err); animation: shake .3s; }
+.pans.good { border-style: solid; border-color: var(--ok); background: color-mix(in srgb, var(--ok) 8%, var(--tile)); }
+.pbank { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.tl {
+  font: inherit; cursor: pointer; color: var(--fg);
+  display: inline-flex; flex-direction: column; align-items: center; gap: 1px;
+  padding: 8px 12px; border-radius: 14px; border: 2px solid var(--edge); background: var(--bg);
+  box-shadow: 0 3px 0 var(--edge); transition: transform .12s, border-color .12s;
+}
+.tl b { font-family: var(--font-jp); font-weight: 700; font-size: 1.3rem; line-height: 1.2; }
+.tl small { font-size: .78rem; font-weight: 700; color: var(--muted); }
+.norom .tl small { display: none; }
+.tl:hover:not(:disabled) { border-color: var(--accent); transform: translateY(-1px); }
+.tl:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
+.tl.gone { visibility: hidden; }
+.tl:disabled { cursor: default; }
+.pans .tl { border-color: var(--accent); }
+.pans .tl.ok { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 16%, var(--bg)); box-shadow: 0 3px 0 color-mix(in srgb, var(--ok) 45%, transparent); }
+.pans .tl.mid { border-color: var(--warn); background: color-mix(in srgb, var(--warn) 18%, var(--bg)); box-shadow: 0 3px 0 color-mix(in srgb, var(--warn) 45%, transparent); }
+.pans .tl.no { border-color: var(--err); background: color-mix(in srgb, var(--err) 14%, var(--bg)); box-shadow: 0 3px 0 color-mix(in srgb, var(--err) 40%, transparent); }
+.pjp { font-family: var(--font-jp); font-size: 1.25rem; line-height: 1.5; }
+.pt { color: var(--accent); }
+.opt { color: var(--muted); }
+.miss.v .mp { display: flex; flex-direction: column; gap: 2px; text-align: left; }
+.vocbox { width: min(640px, 100%); box-sizing: border-box; text-align: left; }
+.vocbox th:first-child, .vocbox td:first-child { width: 30%; text-align: left; }
+.vocbox th:nth-child(2) { width: 24%; } .vocbox th:nth-child(3) { width: auto; }
+.newtag { font-size: .7rem; vertical-align: middle; background: var(--accent2); color: var(--on-accent); padding: 2px 8px; border-radius: 999px; letter-spacing: .06em; text-transform: uppercase; }
+.ptable th:nth-child(2) { width: 52%; } .ptable th:nth-child(3) { width: auto; }
+.ptable .wj { white-space: normal; font-size: 1rem; }
+
 .score { font-family: var(--font-display); font-weight: 700; font-size: clamp(4rem, 18vw, 7rem); line-height: 1; }
 .score span { color: var(--muted); font-size: .45em; }
 .miss { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 640px; }
@@ -314,7 +362,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent2); o
   <div class="tiles">
     <button class="tile" type="button" data-mode="hira"><span class="jp">あ</span><span class="name">Hiragana</span></button>
     <button class="tile" type="button" data-mode="vocab"><span class="jp">ことば</span><span class="name">Vocabulaire</span></button>
-    <button class="tile soon" type="button" data-t="Phrases"><span class="jp">の</span><span class="name">Phrases</span></button>
+    <button class="tile" type="button" data-mode="phrase"><span class="jp">ぶん</span><span class="name">Phrases</span></button>
   </div>
 </main>
 
@@ -352,6 +400,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent2); o
     <button class="btn" id="btn-next" type="button" hidden>Suivant →</button>
     <button class="btn ghost" id="btn-skip" type="button">Passer</button>
   </div>
+  <button class="btn ghost" id="btn-voc" type="button" aria-expanded="false" hidden>Afficher le vocabulaire</button>
+  <div class="wtable vocbox" id="vocbox" hidden></div>
 </main>
 
 <main class="stage" id="v-end" hidden>
@@ -387,10 +437,11 @@ const VERBES = [
   'する|suru|faire / produire', 'よやくする|yoyaku suru|réserver', 'りょうりする|ryouri suru|cuisiner', 'りょこうする|ryokou suru|voyager',
 ];
 /* COULEURS = adjectifs, à connaître absolument */
+/* COULEURS_I : adjectifs en い (あかい くるま) · COULEURS_NO : noms, avec の (みどりの くるま) */
 const COULEURS_I = [
-  'あか|aka|rouge', 'あお|ao|bleu', 'きいろ|kiiro|jaune', 'ちゃいろ|chairo|marron', 'くろ|kuro|noir', 'しろ|shiro|blanc',
+  'あかい|akai|rouge', 'あおい|aoi|bleu', 'きいろい|kiiroi|jaune', 'ちゃいろい|chairoi|marron', 'くろい|kuroi|noir', 'しろい|shiroi|blanc',
 ];
-const COULEURS_NA = [
+const COULEURS_NO = [
   'みどり|midori|vert', 'オレンジ|orenji|orange', 'ピンク|pinku|rose', 'はいいろ / グレー|haiiro|gris', 'むらさき|murasaki|violet',
 ];
 
@@ -459,25 +510,101 @@ const BASE = [
 ];
 const ROMAJI_EN_PLUS = {
   ii: ['yoi'], raku: ['rakku'], haiiro: ['guree', 'gure'],
-  aka: ['akai'], ao: ['aoi'], kiiro: ['kiiroi'], chairo: ['chairoi'], kuro: ['kuroi'], shiro: ['shiroi'],
+  akai: ['aka'], aoi: ['ao'], kiiroi: ['kiiro'], chairoi: ['chairo'], kuroi: ['kuro'], shiroi: ['shiro'],
   suru: ['shimasu'], desu: ['da'], kuru: ['kimasu'], omise: ['mise'], tatemono: ['biru'], fun: ['pun'],
   supootsu: ['supoutsu'], konnichiwa: ['konnichiha'], konbanwa: ['konbanha', 'kombanwa'], 'to iimasu': ['to moushimasu'],
 };
 const FR_EN_PLUS = { marron: ['maron'] };
 const POIDS_CHOISI = 3;   // les mots cochés à la main tombent 3x plus souvent que ceux de base
 
+/* ============ PHRASES ============
+   Format : [cours, 'français', 'japonais en morceaux', 'romaji en morceaux']
+   - Un espace sépare chaque tuile. Le japonais et le romaji doivent avoir le même nombre de morceaux.
+   - '?' devant un morceau = facultatif (ex. ?わたし ?は) : la phrase est juste avec ou sans.
+   - '_' dans le romaji = espace affiché (yoyaku_suru).
+   - Le dernier cours compte comme "nouveau" et tombe plus souvent. */
+const COURS = {
+  1: 'Cours 1 · は et です',
+  2: 'Cours 2 · adjectifs, すき et を',
+  3: 'Cours 3 · phrases complètes et の',
+};
+const PHRASES = [
+  [1, 'Je suis français.', '?わたし ?は フランスじん です', '?watashi ?wa furansujin desu'],
+  [1, 'Le Japon est un pays.', 'にほん は くに です', 'nihon wa kuni desu'],
+  [1, 'Luffy est un pirate.', 'ルフィ は かいぞく です', 'rufi wa kaizoku desu'],
+  [1, 'Le professeur est japonais.', 'せんせい は にほんじん です', 'sensei wa nihonjin desu'],
+  [1, 'Enchanté, je suis Tanaka.', 'はじめまして たなか です', 'hajimemashite tanaka desu'],
+  [1, 'Naruto mange.', 'ナルト は たべる', 'naruto wa taberu'],
+  [1, 'Les chats sont mignons.', 'ねこ は かわいい です', 'neko wa kawaii desu'],
+  [1, 'Je vais à l’école.', '?わたし ?は がっこう に いきます', '?watashi ?wa gakkou ni ikimasu'],
+  [1, 'J’aime le Japon.', 'にほん が すき です', 'nihon ga suki desu'],
+
+  [2, 'Ce film est intéressant.', 'この えいが は おもしろい です', 'kono eiga wa omoshiroi desu'],
+  [2, 'Ce film n’est pas intéressant.', 'この えいが は おもしろくない です', 'kono eiga wa omoshirokunai desu'],
+  [2, 'Aujourd’hui, il fait froid.', 'きょう は さむい です', 'kyou wa samui desu'],
+  [2, 'Aujourd’hui, il ne fait pas froid.', 'きょう は さむくない です', 'kyou wa samukunai desu'],
+  [2, 'Ces ramens sont délicieux.', 'この ラーメン は おいしい です', 'kono raamen wa oishii desu'],
+  [2, 'Le japonais n’est pas difficile.', 'にほんご は むずかしくない です', 'nihongo wa muzukashikunai desu'],
+  [2, 'Cette chambre est calme.', 'この へや は しずか です', 'kono heya wa shizuka desu'],
+  [2, 'Cette chambre n’est pas calme.', 'この へや は しずか じゃない です', 'kono heya wa shizuka janai desu'],
+  [2, 'Le japonais est facile.', 'にほんご は かんたん です', 'nihongo wa kantan desu'],
+  [2, 'Le japonais n’est pas facile.', 'にほんご は かんたん じゃない です', 'nihongo wa kantan janai desu'],
+  [2, 'C’est une voiture chère.', 'たかい くるま です', 'takai kuruma desu'],
+  [2, 'C’est une personne dynamique.', 'げんき な ひと です', 'genki na hito desu'],
+  [2, 'C’est une belle ville.', 'きれい な まち です', 'kirei na machi desu'],
+  [2, 'J’aime les sushis.', '?わたし ?は すし が すき です', '?watashi ?wa sushi ga suki desu'],
+  [2, 'Naruto aime le japonais.', 'ナルト は にほんご が すき です', 'naruto wa nihongo ga suki desu'],
+  [2, 'Je déteste étudier.', 'べんきょう が きらい です', 'benkyou ga kirai desu'],
+  [2, 'Je n’aime pas les sushis.', 'すし が すき じゃない です', 'sushi ga suki janai desu'],
+  [2, 'J’adore les chats.', 'ねこ が だいすき です', 'neko ga daisuki desu'],
+  [2, 'Qu’est-ce que tu aimes ?', 'なに が すき です か', 'nani ga suki desu ka'],
+  [2, 'Je mange des sushis.', '?わたし ?は すし を たべます', '?watashi ?wa sushi o tabemasu'],
+  [2, 'Luffy boit de l’eau.', 'ルフィ は みず を のむ', 'rufi wa mizu o nomu'],
+  [2, 'Natsu achète de la viande.', 'ナツ は にく を かう', 'natsu wa niku o kau'],
+  [2, 'Sai lit un livre.', 'サイ は ほん を よむ', 'sai wa hon o yomu'],
+  [2, 'Je regarde des animés.', '?わたし ?は アニメ を みる', '?watashi ?wa anime o miru'],
+  [2, 'Naruto mange des ramens.', 'ナルト は ラーメン を たべる', 'naruto wa raamen o taberu'],
+
+  [3, 'Naruto mange des ramens délicieux.', 'ナルト は おいしい ラーメン を たべる', 'naruto wa oishii raamen o taberu'],
+  [3, 'Le petit Luffy achète un gros morceau de viande.', 'ちいさい ルフィ は おおきい にく を かう', 'chiisai rufi wa ookii niku o kau'],
+  [3, 'Edward lit un vieux livre.', 'エドワード は ふるい ほん を よむ', 'edowaado wa furui hon o yomu'],
+  [3, 'Luffy mange de la viande délicieuse.', 'ルフィ は おいしい にく を たべる', 'rufi wa oishii niku o taberu'],
+  [3, 'Sakura mange un gâteau sucré.', 'サクラ は あまい ケーキ を たべる', 'sakura wa amai keeki o taberu'],
+  [3, 'Goku boit une boisson chère.', 'ごくう は たかい のみもの を のむ', 'gokuu wa takai nomimono o nomu'],
+  [3, 'Zoro lit un livre bizarre.', 'ゾロ は へん な ほん を よむ', 'zoro wa hen na hon o yomu'],
+  [3, 'Nami achète un sac pratique.', 'ナミ は べんり な かばん を かう', 'nami wa benri na kaban o kau'],
+  [3, 'Eren regarde un film effrayant.', 'エレン は こわい えいが を みる', 'eren wa kowai eiga o miru'],
+  [3, 'Hinata lit un livre triste.', 'ヒナタ は かなしい ほん を よむ', 'hinata wa kanashii hon o yomu'],
+  [3, 'Luffy achète une petite boutique.', 'ルフィ は ちいさい みせ を かう', 'rufi wa chiisai mise o kau'],
+  [3, 'Sanji mange un plat qui n’est pas bon.', 'サンジ は おいしくない りょうり を たべる', 'sanji wa oishikunai ryouri o taberu'],
+  [3, 'Naruto regarde un chien plein d’énergie.', 'ナルト は げんき な いぬ を みる', 'naruto wa genki na inu o miru'],
+  [3, 'Gon lit un livre qui n’est pas facile.', 'ゴン は かんたん じゃない ほん を よむ', 'gon wa kantan janai hon o yomu'],
+  [3, 'Killua lit un livre difficile.', 'キルア は むずかしい ほん を よむ', 'kirua wa muzukashii hon o yomu'],
+  [3, 'Nami achète une boutique célèbre.', 'ナミ は ゆうめい な みせ を かう', 'nami wa yuumei na mise o kau'],
+  [3, 'Eren boit de l’eau sale.', 'エレン は きたない みず を のむ', 'eren wa kitanai mizu o nomu'],
+  [3, 'Sakura achète un livre sans importance.', 'サクラ は たいせつ じゃない ほん を かう', 'sakura wa taisetsu janai hon o kau'],
+  [3, 'Naruto réserve un hôtel pratique.', 'ナルト は べんり な ホテル を よやくする', 'naruto wa benri na hoteru o yoyaku_suru'],
+  [3, 'Le chapeau de Luffy est rouge.', 'ルフィ の ぼうし は あかい です', 'rufi no boushi wa akai desu'],
+  [3, 'L’ami de Luffy mange de la viande.', 'ルフィ の ともだち は にく を たべる', 'rufi no tomodachi wa niku o taberu'],
+  [3, 'Les gens de la ville d’Usopp.', 'ウソップ の まち の ひと', 'usoppu no machi no hito'],
+  [3, 'La voiture verte est rapide.', 'みどり の くるま は はやい です', 'midori no kuruma wa hayai desu'],
+  [3, 'Le téléphone rose est cher.', 'ピンク の けいたい は たかい です', 'pinku no keitai wa takai desu'],
+  [3, 'Le pirate rouge mange un légume orange.', 'あかい かいぞく は オレンジ の やさい を たべる', 'akai kaizoku wa orenji no yasai o taberu'],
+];
+
 const PAR_QUESTION = 3;
 const ESSAIS = 3;
+const ESSAIS_PHRASE = 5;   // les phrases ont plus d'essais
 
 const KANA = SEMAINES.flatMap((s, w) => s.map(x => {
   const [k, r] = x.split(' ');
   return { k, r, isNew: w === SEMAINES.length - 1 };
 }));
-const mk = (cat, grp, must) => s => { const [jp, r, fr] = s.split('|'); return { jp, r, fr, cat, grp, must }; };
+const mk = (cat, grp, must, col = false) => s => { const [jp, r, fr] = s.split('|'); return { jp, r, fr, cat, grp, must, col }; };
 const seen = new Set();
 const VOCAB = [
   ...VERBES.map(mk('verbe', 'must', true)),
-  ...COULEURS_I.map(mk('i', 'must', true)), ...COULEURS_NA.map(mk('na', 'must', true)),
+  ...COULEURS_I.map(mk('i', 'must', true, true)), ...COULEURS_NO.map(mk('no', 'must', true, true)),
   ...AUTRES_VERBES.map(mk('verbe', 'verbe2', false)),
   ...ADJ_I.map(mk('i', 'adj', false)), ...ADJ_NA.map(mk('na', 'adj', false)),
   ...NOMS.map(mk('mot', 'nom', false)), ...BASE.map(mk('mot', 'base', false)),
@@ -541,9 +668,9 @@ function weighted(pool, n, w) {
 const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
 let used = new Set();
-function fresh(pool) {   // évite de revoir un mot pendant la partie, tant que possible
+function fresh(pool, min = PAR_QUESTION) {   // évite de revoir un mot pendant la partie, tant que possible
   let f = pool.filter(x => !used.has(x));
-  if (f.length < PAR_QUESTION) { pool.forEach(x => used.delete(x)); f = pool.slice(); }
+  if (f.length < min) { pool.forEach(x => used.delete(x)); f = pool.slice(); }
   return f;
 }
 function pickHira(n) {
@@ -577,17 +704,20 @@ function okText(q, val) {
   }
   let v = val.toLowerCase().trim().replace(/\s+/g, ' ');
   if (q.c.cat === 'na') v = v.replace(/ ?na$/, '');
+  if (q.c.cat === 'no') v = v.replace(/ ?no$/, '');
   return [q.c.r, ...(ROMAJI_EN_PLUS[q.c.r] || [])].map(normJp).includes(normJp(v));
 }
 const expected = q => q.dir === 'jp' ? q.c.fr : q.c.r;
 const firstLetter = q => { const w = q.dir === 'jp' ? q.c.fr.split(/[\/,]/)[0].trim() : q.c.r; return w.slice(0, Math.ceil(w.length / 2)); };
-const isAdj = q => q.c.cat === 'i' || q.c.cat === 'na';
+const isAdj = q => q.c.cat === 'i' || q.c.cat === 'na' || q.c.cat === 'no';
+const KIND = { i: 'adjectif en い i', na: 'adjectif en な na', no: 'nom + の no' };
+const KSHORT = { i: 'い', na: 'な', no: 'の' };
 
 /* ---- quiz ---- */
 let mode = 'hira', total = 1, nWords = 5, qi = 0, cur = [], st = [], tries = 0, good = 0, missed = [];
 
 function start(n) {
-  nWords = n * PAR_QUESTION; total = n; qi = 0; good = 0; missed = []; used = new Set();
+  nWords = mode === 'phrase' ? n : n * PAR_QUESTION; total = n; qi = 0; good = 0; missed = []; used = new Set();
   show('v-quiz');
   next();
 }
@@ -599,9 +729,9 @@ function cardHtml(q, i) {
   if (q.dir === 'kana') return `<div class="card">
       ${q.c.isNew ? '<span class="new">Nouveau</span>' : ''}
       <span class="k" lang="ja">${q.c.k}</span>${input}</div>`;
-  const kind = isAdj(q) ? `<div class="kind" id="kind-${i}" role="group" aria-label="Type d'adjectif">
+  const kind = isAdj(q) ? `<div class="kind" id="kind-${i}" role="group" aria-label="Type">
       <button type="button" data-k="i"><b lang="ja">い</b>i</button>
-      <button type="button" data-k="na"><b lang="ja">な</b>na</button></div>` : '';
+      ${q.c.col ? '<button type="button" data-k="no"><b lang="ja">の</b>no</button>' : '<button type="button" data-k="na"><b lang="ja">な</b>na</button>'}</div>` : '';
   const head = q.dir === 'jp'
     ? `<span class="lab">En français</span><span class="k" lang="ja">${q.c.jp}</span><span class="rom">${q.c.r}</span>`
     : `<span class="lab">En japonais (romaji)</span><span class="fr">${q.c.fr}</span>`;
@@ -609,6 +739,8 @@ function cardHtml(q, i) {
   return `<div class="card v">${must}${head}${kind}${input}</div>`;
 }
 function next() {
+  $('btn-voc').hidden = true; $('vocbox').hidden = true;
+  if (mode === 'phrase') { pNext(); return; }
   const cnt = Math.min(PAR_QUESTION, nWords - qi * PAR_QUESTION);
   cur = mode === 'hira' ? pickHira(cnt) : pickVocab(cnt);
   st = cur.map(q => ({ text: false, kind: isAdj(q) ? false : null, pickedKind: null, hinted: false, revealed: false }));
@@ -644,8 +776,9 @@ function next() {
   });
   $('in-0').focus();
 }
+const maxTries = () => mode === 'phrase' ? ESSAIS_PHRASE : ESSAIS;
 function drawTries() {
-  $('tries').innerHTML = 'Essais ' + Array.from({ length: ESSAIS }, (_, i) =>
+  $('tries').innerHTML = 'Essais ' + Array.from({ length: maxTries() }, (_, i) =>
     `<i class="${i < tries ? 'used' : ''}"></i>`).join('');
 }
 const done = s => s.text && s.kind !== false;
@@ -661,7 +794,7 @@ function showCorr(q, i, ok) {
   const t = `<span class="t">${ok ? 'Bravo' : 'Correction'}</span>`;
   if (q.dir === 'kana') el.innerHTML = `${t}<b lang="ja">${q.c.k}</b> = ${q.c.r}`;
   else {
-    const kind = isAdj(q) ? `<small>adjectif en ${q.c.cat === 'i' ? 'い i' : 'な na'}</small>` : '';
+    const kind = isAdj(q) ? `<small>${KIND[q.c.cat]}</small>` : '';
     el.innerHTML = `${t}<b lang="ja">${q.c.jp}</b> ${q.c.r}${q.c.cat === 'na' ? ' na' : ''}<br>${q.c.fr}${kind}`;
   }
   el.className = 'corr' + (ok ? ' ok' : '');
@@ -669,6 +802,7 @@ function showCorr(q, i, ok) {
 }
 function check() {
   if (!$('btn-next').hidden) { goNext(); return; }
+  if (mode === 'phrase') { pCheck(); return; }
   tries++; drawTries();
   cur.forEach((q, i) => {
     const s = st[i], el = $('in-' + i);
@@ -693,6 +827,7 @@ function check() {
   else { const bad = st.findIndex(s => !s.text && !s.revealed); if (bad >= 0) $('in-' + bad).select(); }
 }
 function finishQ() {
+  if (mode === 'phrase') { pFinish(false); return; }
   cur.forEach((q, i) => {
     const s = st[i];
     lockCard(i);
@@ -712,21 +847,206 @@ function goNext() {
 function end() {
   const max = nWords;
   $('score').innerHTML = `${good}<span> / ${max}</span>`;
-  $('miss').className = 'miss' + (mode === 'vocab' ? ' v' : '');
+  $('miss').className = 'miss' + (mode === 'hira' ? '' : ' v');
   $('miss').innerHTML = missed.length
-    ? missed.map(q => q.dir === 'kana'
+    ? missed.map(q => q.phr
+        ? `<div class="mp"><b lang="ja">${markJp(q.phr.toks)}</b>${q.phr.fr}</div>`
+        : q.dir === 'kana'
         ? `<div><b lang="ja">${q.c.k}</b>${q.c.r}</div>`
-        : `<div><b lang="ja">${q.c.jp}</b>${q.c.r}${q.c.cat === 'na' ? ' na' : ''} = ${q.c.fr}${isAdj(q) ? ` (${q.c.cat === 'i' ? 'い' : 'な'})` : ''}</div>`
+        : `<div><b lang="ja">${q.c.jp}</b>${q.c.r}${q.c.cat === 'na' ? ' na' : ''} = ${q.c.fr}${isAdj(q) ? ` (${KSHORT[q.c.cat]})` : ''}</div>`
       ).join('')
     : '<p class="muted">Sans faute, bravo !</p>';
   show('v-end');
 }
 
+
+/* ============ MODULE PHRASES (tuiles à remettre dans l'ordre) ============ */
+const PART_R = { 'は': 'wa', 'を': 'o', 'が': 'ga', 'の': 'no', 'な': 'na', 'に': 'ni' };
+const DERNIER_COURS = Math.max(...PHRASES.map(p => p[0]));
+const PHR = PHRASES.map(([cours, fr, jp, r], i) => {
+  const J = jp.trim().split(/\s+/), R = r.trim().split(/\s+/);
+  if (J.length !== R.length) console.warn('Phrase mal découpée :', fr);
+  const toks = J.map((t, k) => ({ jp: t.replace(/^\?/, ''), r: (R[k] || '').replace(/^\?/, '').replace(/_/g, ' '), opt: t.startsWith('?') }));
+  const full = toks.map(t => t.jp).join('|'), short = toks.filter(t => !t.opt).map(t => t.jp).join('|');
+  return { id: 'p' + i, cours, fr, toks, answers: [full, short], isNew: cours === DERNIER_COURS };
+});
+let poff = new Set();   // phrases retirées par le joueur
+try { const h = JSON.parse(localStorage.getItem('hoenn-poff')); if (Array.isArray(h)) poff = new Set(h); } catch (e) {}
+const savePoff = () => { try { localStorage.setItem('hoenn-poff', JSON.stringify([...poff])); } catch (e) {} };
+const phrPool = () => PHR.filter(p => !poff.has(p.id));
+let showRom = true;
+try { showRom = localStorage.getItem('hoenn-romaji') !== 'off'; } catch (e) {}
+
+const markJp = toks => toks.map(t => {
+  const w = PART_R[t.jp] ? `<span class="pt">${t.jp}</span>` : t.jp;
+  return t.opt ? `<span class="opt">(${w})</span>` : w;
+}).join(' ');
+const markR = toks => toks.map(t => t.opt ? `(${t.r})` : t.r).join(' ');
+
+/* sens des mots pour la table de vocabulaire (en plus de la liste VOCAB) */
+const GLOSS = {
+  'は': 'particule du thème (« quant à… »)', 'を': 'particule du COD (ce qu’on mange, lit…)', 'が': 'particule avec すき / きらい',
+  'の': 'de (possession, groupe, type)', 'な': 'lien adjectif en な + nom', 'に': 'à / vers (destination)',
+  'です': 'être (poli)', 'か': 'marque la question (?)', 'この': 'ce / cette', 'じゃない': 'ne… pas (négation)',
+  'なに': 'quoi / que', 'だいすき': 'adorer', 'フランスじん': 'Français (personne)', 'にほんじん': 'Japonais (personne)',
+  'かいぞく': 'pirate', 'すし': 'sushis', 'アニメ': 'animés', 'みせ': 'magasin / boutique',
+  'いきます': 'aller (poli)', 'たべます': 'manger (poli)',
+};
+const PRENOMS = 'ルフィ ナルト ナツ サイ エドワード サクラ ごくう ゾロ ナミ エレン ヒナタ サンジ ゴン キルア ウソップ たなか'.split(' ');
+const VMAP = new Map();
+VOCAB.forEach(v => v.jp.split(/\s*\/\s*/).forEach(j => VMAP.has(j) || VMAP.set(j, v.fr)));
+function gloss(w) {
+  if (GLOSS[w]) return GLOSS[w];
+  if (VMAP.has(w)) return VMAP.get(w);
+  if (PRENOMS.includes(w)) return 'prénom';
+  if (w.endsWith('くない')) { const b = w.slice(0, -3) + 'い'; if (VMAP.has(b)) return 'pas ' + VMAP.get(b).split(' / ')[0]; }
+  return '—';
+}
+let showVoc = false;
+try { showVoc = localStorage.getItem('hoenn-voc') === 'on'; } catch (e) {}
+function drawVoc() {
+  const seen = new Set(), rows = P.tiles.filter(t => !seen.has(t.jp) && seen.add(t.jp));
+  $('vocbox').innerHTML = `<table><thead><tr><th>Japonais</th><th>Romaji</th><th>Sens</th></tr></thead><tbody>${
+    rows.map(t => `<tr><td lang="ja" class="wj">${PART_R[t.jp] ? `<span class="pt">${t.jp}</span>` : t.jp}</td><td>${t.r}</td><td>${gloss(t.jp)}</td></tr>`).join('')}</tbody></table>`;
+  $('vocbox').hidden = !showVoc;
+  $('btn-voc').textContent = showVoc ? 'Cacher le vocabulaire' : 'Afficher le vocabulaire';
+  $('btn-voc').setAttribute('aria-expanded', String(showVoc));
+}
+$('btn-voc').onclick = () => {
+  showVoc = !showVoc;
+  try { localStorage.setItem('hoenn-voc', showVoc ? 'on' : 'off'); } catch (e) {}
+  drawVoc();
+};
+
+let P = null;
+function pNext() {
+  const s = weighted(fresh(phrPool(), 1), 1, x => x.isNew ? POIDS_NOUVEAU : 1)[0];
+  used.add(s);
+  const dis = [];
+  const parts = Object.keys(PART_R).filter(p => !s.toks.some(t => t.jp === p));
+  if (parts.length) { const p = parts[Math.random() * parts.length | 0]; dis.push({ jp: p, r: PART_R[p] }); }
+  const nouns = VOCAB.filter(x => x.grp === 'nom' && !x.jp.includes('/') && !s.toks.some(t => t.jp === x.jp));
+  if (nouns.length) { const n = nouns[Math.random() * nouns.length | 0]; dis.push({ jp: n.jp, r: n.r }); }
+  P = { marks: {}, s, tiles: shuffle([...s.toks, ...dis]).map((t, i) => ({ jp: t.jp, r: t.r, i })), placed: [], hinted: false, locked: false };
+  tries = 0;
+  $('cards').innerHTML = `<div class="pcard${showRom ? '' : ' norom'}" id="pcard">
+    <div class="ptop"><span class="lab">Traduis en japonais</span>
+      ${s.isNew ? '<span class="newtag">Nouveau</span>' : ''}
+      <button class="mini" id="btn-rom" type="button" aria-pressed="${showRom}">Romaji : ${showRom ? 'oui' : 'non'}</button></div>
+    <p class="pfr">${s.fr}</p>
+    <div class="pans" id="pans" aria-label="Ta phrase"></div>
+    <div class="pbank" id="pbank" aria-label="Mots disponibles"></div>
+    <button class="hint" id="p-hint" type="button" hidden>💡 Indice : la moitié de la phrase</button>
+    <button class="see" id="p-see" type="button">Jamais vue ? Voir la réponse</button>
+    <div class="corr" id="p-corr" hidden></div>
+  </div>`;
+  $('progress').innerHTML = Array.from({ length: total }, (_, i) =>
+    `<i class="${i < qi ? 'done' : i === qi ? 'now' : ''}"></i>`).join('');
+  drawTries();
+  $('btn-check').hidden = false; $('btn-skip').hidden = false; $('btn-next').hidden = true;
+  $('btn-rom').onclick = () => {
+    showRom = !showRom;
+    try { localStorage.setItem('hoenn-romaji', showRom ? 'on' : 'off'); } catch (e) {}
+    $('pcard').classList.toggle('norom', !showRom);
+    $('btn-rom').textContent = 'Romaji : ' + (showRom ? 'oui' : 'non');
+    $('btn-rom').setAttribute('aria-pressed', String(showRom));
+  };
+  $('p-hint').onclick = pHint;
+  $('p-see').onclick = () => pFinish(false);
+  drawP();
+  $('btn-voc').hidden = false; drawVoc();
+}
+const tileHtml = (t, gone) => `<button type="button" class="tl${gone ? ' gone' : ''}${!gone && P.marks[t.i] ? ' ' + P.marks[t.i] : ''}" data-i="${t.i}"${gone || P.locked ? ' disabled' : ''}${gone ? ' aria-hidden="true" tabindex="-1"' : ''}><b lang="ja">${t.jp}</b><small>${t.r}</small></button>`;
+function drawP() {
+  $('pans').innerHTML = P.placed.map(i => tileHtml(P.tiles[i], false)).join('');
+  $('pbank').innerHTML = P.tiles.map(t => tileHtml(t, P.placed.includes(t.i))).join('');
+}
+$('cards').addEventListener('click', e => {
+  if (mode !== 'phrase' || !P || P.locked) return;
+  const b = e.target.closest('.tl'); if (!b || b.disabled) return;
+  const i = +b.dataset.i;
+  if (b.parentElement.id === 'pans') P.placed.splice(P.placed.indexOf(i), 1);
+  else P.placed.push(i);
+  P.marks = {};
+  $('pans').classList.remove('bad');
+  drawP();
+});
+function pHint() {
+  const target = P.s.answers[0].split('|'), half = Math.ceil(target.length / 2);
+  P.placed = []; P.marks = {};
+  target.slice(0, half).forEach(w => {
+    const t = P.tiles.find(t => t.jp === w && !P.placed.includes(t.i));
+    if (t) P.placed.push(t.i);
+  });
+  $('p-hint').hidden = true;
+  $('pans').classList.remove('bad');
+  drawP();
+}
+function pCheck() {
+  if (!P.placed.length) { say('Touche les mots pour construire la phrase'); return; }
+  tries++; drawTries();
+  const seq = P.placed.map(i => P.tiles[i].jp).join('|');
+  // vert = bonne place · orange = dans la phrase mais mal placé · rouge = pas dans la phrase
+  const cands = P.s.answers.map(a => a.split('|'));
+  const score = c => P.placed.filter((i, k) => P.tiles[i].jp === c[k]).length;
+  const target = cands.reduce((a, b) => score(b) > score(a) ? b : a);
+  P.marks = {};
+  P.placed.forEach((i, k) => {
+    const w = P.tiles[i].jp;
+    P.marks[i] = w === target[k] ? 'ok' : target.includes(w) ? 'mid' : 'no';
+  });
+  drawP();
+  if (P.s.answers.includes(seq)) { pFinish(true); return; }
+  const z = $('pans'); z.classList.remove('bad'); void z.offsetWidth; z.classList.add('bad');
+  if (tries >= ESSAIS_PHRASE) { pFinish(false); return; }
+  if (!P.hinted) { $('p-hint').hidden = false; P.hinted = true; }
+}
+function pFinish(ok) {
+  if (P.locked) return;
+  P.locked = true;
+  $('pcard').classList.add('locked');
+  if (ok === undefined) ok = false;
+  $('pans').classList.toggle('good', ok);
+  if (ok) $('pans').classList.remove('bad');
+  drawP();
+  $('p-hint').hidden = true; $('p-see').hidden = true;
+  const c = $('p-corr');
+  c.innerHTML = `<span class="t">${ok ? 'Bravo' : 'Correction'}</span>
+    <b lang="ja" class="pjp">${markJp(P.s.toks)}</b><small>${markR(P.s.toks)}</small><small>${P.s.fr}</small>`;
+  c.className = 'corr' + (ok ? ' ok' : '');
+  c.hidden = false;
+  if (ok) good++; else missed.push({ phr: P.s });
+  $('btn-check').hidden = true; $('btn-skip').hidden = true; $('btn-next').hidden = false;
+  $('btn-next').textContent = qi + 1 < total ? 'Suivant →' : 'Voir le score';
+  $('btn-next').focus();
+}
+
+/* liste des phrases à cocher */
+function drawPhr() {
+  $('w-title').innerHTML = 'Mes <span class="a">phrases</span>';
+  const ids = [...new Set(PHR.map(p => p.cours))];
+  $('wsecs').innerHTML = ids.map(c => {
+    const all = PHR.filter(p => p.cours === c);
+    return `<section class="wsec">
+      <div class="whead"><h3>${COURS[c] || 'Cours ' + c} <span class="muted">${all.length}</span>${c === DERNIER_COURS ? ' <span class="newtag">Nouveau</span>' : ''}</h3>
+        <div class="row"><button class="mini" type="button" data-all="p-${c}">Tout</button><button class="mini" type="button" data-none="p-${c}">Rien</button></div>
+      </div>
+      <div class="wtable ptable"><table>
+        <thead><tr><th></th><th>Japonais</th><th>Français</th></tr></thead>
+        <tbody>${all.map(p => `<tr>
+          <td><input type="checkbox" id="w-${p.id}" data-pid="${p.id}" ${poff.has(p.id) ? '' : 'checked'} aria-label="${p.fr}"></td>
+          <td lang="ja" class="wj">${markJp(p.toks)}</td>
+          <td>${p.fr}</td></tr>`).join('')}</tbody>
+      </table></div></section>`;
+  }).join('');
+  wCount();
+}
+
 /* ---- navigation ---- */
 document.querySelectorAll('.tile[data-mode]').forEach(b => b.onclick = () => {
   mode = b.dataset.mode;
-  $('setup-sub').textContent = mode === 'hira' ? '3 hiragana par série' : '3 mots par série';
-  $('btn-words').textContent = mode === 'hira' ? 'Voir et choisir les hiragana' : 'Voir et choisir les mots';
+  $('setup-sub').textContent = { hira: '3 hiragana par série', vocab: '3 mots par série', phrase: '1 phrase par série' }[mode];
+  $('btn-words').textContent = { hira: 'Voir et choisir les hiragana', vocab: 'Voir et choisir les mots', phrase: 'Voir et choisir les phrases' }[mode];
   $('cats').hidden = mode !== 'vocab';
   drawCats();
   show('v-setup');
@@ -749,8 +1069,9 @@ document.querySelectorAll('.cat').forEach(b => b.onclick = () => {
 });
 
 /* ---- tableau des mots ---- */
-const typeTag = x => x.cat === 'i' ? '<span class="tag" lang="ja">い</span>' : x.cat === 'na' ? '<span class="tag" lang="ja">な</span>' : '';
+const typeTag = x => KSHORT[x.cat] ? `<span class="tag" lang="ja">${KSHORT[x.cat]}</span>` : '';
 function wCount() {
+  if (mode === 'phrase') { $('w-count').textContent = `${phrPool().length} phrases au programme`; return; }
   if (mode === 'hira') { $('w-count').textContent = `${hiraPool().length} hiragana au programme`; return; }
   const n = VOCAB.filter(x => x.must || sel.has(x.id)).length;
   $('w-count').textContent = `${n} mots au programme`;
@@ -768,6 +1089,7 @@ function drawHira() {
 }
 function drawWords() {
   if (mode === 'hira') { drawHira(); return; }
+  if (mode === 'phrase') { drawPhr(); return; }
   $('w-title').innerHTML = 'Mes <span class="a">mots</span>';
   $('wsecs').innerHTML = GROUPES.map(([g, name]) => {
     const all = inGrp(g), must = g === 'must';
@@ -787,6 +1109,8 @@ function drawWords() {
   wCount();
 }
 $('wsecs').addEventListener('change', e => {
+  const pid = e.target.dataset.pid;
+  if (pid) { e.target.checked ? poff.delete(pid) : poff.add(pid); savePoff(); wCount(); return; }
   const id = e.target.dataset.id; if (!id) return;
   e.target.checked ? sel.add(id) : sel.delete(id);
   saveSel(); wCount();
@@ -800,6 +1124,10 @@ $('wsecs').addEventListener('click', e => {
     saveHoff(); wCount(); return;
   }
   const g = e.target.dataset.all || e.target.dataset.none; if (!g) return;
+  if (g.startsWith('p-')) {
+    PHR.filter(x => x.cours === +g.slice(2)).forEach(x => e.target.dataset.all ? poff.delete(x.id) : poff.add(x.id));
+    savePoff(); drawPhr(); return;
+  }
   if (g.startsWith('h-')) {
     KANA.filter(x => x.isNew === (g === 'h-new')).forEach(x => e.target.dataset.all ? hoff.delete(x.k) : hoff.add(x.k));
     saveHoff(); drawHira(); return;
@@ -811,6 +1139,7 @@ $('btn-words').onclick = () => { drawWords(); show('v-words'); };
 $('btn-words-ok').onclick = () => { drawCats(); show('v-setup'); };
 document.querySelectorAll('.choice').forEach(b => b.onclick = () => {
   if (mode === 'hira' && hiraPool().length < PAR_QUESTION) { say('Choisis au moins 3 hiragana'); return; }
+  if (mode === 'phrase' && !phrPool().length) { say('Choisis au moins une phrase'); return; }
   start(+b.dataset.n);
 });
 $('btn-check').onclick = check;
